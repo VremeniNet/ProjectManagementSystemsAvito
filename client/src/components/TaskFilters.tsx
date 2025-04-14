@@ -81,7 +81,7 @@ const TaskFilters = ({
 				renderValue={value => (value ? value : 'Статус')}
 			>
 				<MenuItem value=''>Статус</MenuItem>
-				<MenuItem value='Backlog'>Backlog</MenuItem>
+				<MenuItem value='ToDo'>ToDo</MenuItem>
 				<MenuItem value='InProgress'>In Progress</MenuItem>
 				<MenuItem value='Done'>Done</MenuItem>
 			</Select>

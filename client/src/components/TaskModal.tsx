@@ -6,14 +6,23 @@ import {
 	Button,
 	MenuItem,
 	DialogActions,
+	SelectChangeEvent,
 } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { TaskFormValues } from '../types/taskForm'
+import { User } from '../types/user'
+import { Board } from '../types/board'
 
 interface TaskModalProps {
 	open: boolean
 	onClose: () => void
 	onSubmit: (data: TaskFormValues) => void
+	initialValues?: TaskFormValues
+	isFromBoard?: boolean
+	showGoToBoard?: boolean
+	users: User[]
+	boards: Board[]
 }
 
 const yellowFieldStyle = {
@@ -34,19 +43,48 @@ const yellowFieldStyle = {
 	},
 }
 
-const TaskModal = ({ open, onClose, onSubmit }: TaskModalProps) => {
+const TaskModal = ({
+	open,
+	onClose,
+	onSubmit,
+	initialValues,
+	isFromBoard = false,
+	showGoToBoard = false,
+	users,
+	boards,
+}: TaskModalProps) => {
+	const navigate = useNavigate()
+	const isEditMode = Boolean(initialValues)
+
 	const [form, setForm] = useState<TaskFormValues>({
 		title: '',
 		description: '',
-		status: 'Backlog',
+		status: 'ToDo',
 		priority: 'Medium',
-		assignee: '',
-		board: '',
+		assigneeId: 0,
+		boardId: 0,
 	})
 
+	useEffect(() => {
+		if (initialValues) {
+			setForm(initialValues)
+		}
+	}, [initialValues])
+
 	const handleChange =
-		(field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+		(field: keyof TaskFormValues) =>
+		(e: React.ChangeEvent<HTMLInputElement>) => {
 			setForm(prev => ({ ...prev, [field]: e.target.value }))
+		}
+
+	const handleSelectChange =
+		<T extends keyof TaskFormValues>(field: T) =>
+		(e: SelectChangeEvent<string | number>) => {
+			const value = e.target.value
+			setForm(prev => ({
+				...prev,
+				[field]: typeof prev[field] === 'number' ? Number(value) : value,
+			}))
 		}
 
 	const handleSubmit = () => {
@@ -72,9 +110,7 @@ const TaskModal = ({ open, onClose, onSubmit }: TaskModalProps) => {
 			}}
 			slotProps={{
 				backdrop: {
-					sx: {
-						backgroundColor: 'rgba(0, 0, 0, 0.6)',
-					},
+					sx: { backgroundColor: 'rgba(0, 0, 0, 0.6)' },
 				},
 			}}
 		>
@@ -86,8 +122,9 @@ const TaskModal = ({ open, onClose, onSubmit }: TaskModalProps) => {
 					color: '#ffeb3b',
 				}}
 			>
-				Создать задачу
+				{isEditMode ? 'Редактировать задачу' : 'Создать задачу'}
 			</DialogTitle>
+
 			<DialogContent
 				sx={{
 					display: 'flex',
@@ -103,7 +140,6 @@ const TaskModal = ({ open, onClose, onSubmit }: TaskModalProps) => {
 					onChange={handleChange('title')}
 					fullWidth
 					sx={yellowFieldStyle}
-					InputLabelProps={{ shrink: true }}
 				/>
 				<TextField
 					label='Описание'
@@ -115,27 +151,45 @@ const TaskModal = ({ open, onClose, onSubmit }: TaskModalProps) => {
 					sx={yellowFieldStyle}
 				/>
 				<TextField
-					label='Доска'
-					value={form.board}
-					onChange={handleChange('board')}
-					sx={yellowFieldStyle}
-				/>
-				<TextField
+					label='Проект'
 					select
-					label='Статус'
-					value={form.status}
-					onChange={handleChange('status')}
-					sx={yellowFieldStyle}
+					value={form.boardId}
+					onChange={e =>
+						handleSelectChange('boardId')(
+							e as SelectChangeEvent<string | number>
+						)
+					}
+					sx={{
+						...yellowFieldStyle,
+						'& .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline':
+							{
+								borderColor: '#ffeb3b',
+							},
+						'& .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-input': {
+							color: '#ffeb3b',
+							WebkitTextFillColor: '#ffeb3b',
+						},
+						'& .MuiInputLabel-root.Mui-disabled': {
+							color: '#ffeb3b',
+						},
+					}}
+					disabled={isFromBoard}
 				>
-					<MenuItem value='Backlog'>Backlog</MenuItem>
-					<MenuItem value='InProgress'>In Progress</MenuItem>
-					<MenuItem value='Done'>Done</MenuItem>
+					{boards.map(board => (
+						<MenuItem key={board.id} value={board.id}>
+							{board.name}
+						</MenuItem>
+					))}
 				</TextField>
 				<TextField
 					select
 					label='Приоритет'
 					value={form.priority}
-					onChange={handleChange('priority')}
+					onChange={e =>
+						handleSelectChange('priority')(
+							e as SelectChangeEvent<string | number>
+						)
+					}
 					sx={yellowFieldStyle}
 				>
 					<MenuItem value='Low'>Low</MenuItem>
@@ -143,18 +197,62 @@ const TaskModal = ({ open, onClose, onSubmit }: TaskModalProps) => {
 					<MenuItem value='High'>High</MenuItem>
 				</TextField>
 				<TextField
-					label='Исполнитель'
-					value={form.assignee}
-					onChange={handleChange('assignee')}
+					select
+					label='Статус'
+					value={form.status}
+					onChange={e =>
+						handleSelectChange('status')(
+							e as SelectChangeEvent<string | number>
+						)
+					}
 					sx={yellowFieldStyle}
-				/>
+				>
+					<MenuItem value='ToDo'>To Do</MenuItem>
+					<MenuItem value='InProgress'>In Progress</MenuItem>
+					<MenuItem value='Done'>Done</MenuItem>
+				</TextField>
+				<TextField
+					label='Исполнитель'
+					select
+					value={form.assigneeId}
+					onChange={e =>
+						handleSelectChange('assigneeId')(
+							e as SelectChangeEvent<string | number>
+						)
+					}
+					sx={yellowFieldStyle}
+				>
+					{users.map(user => (
+						<MenuItem key={user.id} value={user.id}>
+							{user.fullName}
+						</MenuItem>
+					))}
+				</TextField>
 			</DialogContent>
-			<DialogActions>
+
+			<DialogActions
+				sx={{
+					justifyContent: showGoToBoard ? 'space-between' : 'flex-end',
+				}}
+			>
 				<Button onClick={onClose} sx={{ color: '#ffeb3b' }}>
 					Отмена
 				</Button>
+				{showGoToBoard && (
+					<Button
+						variant='outlined'
+						onClick={() => navigate(`/board/${form.boardId}`)}
+						sx={{
+							color: '#ffeb3b',
+							borderColor: '#ffeb3b',
+						}}
+					>
+						Перейти на доску
+					</Button>
+				)}
 				<Button
 					variant='contained'
+					onClick={handleSubmit}
 					sx={{
 						backgroundColor: '#ffeb3b',
 						color: '#000',
@@ -164,9 +262,8 @@ const TaskModal = ({ open, onClose, onSubmit }: TaskModalProps) => {
 						textTransform: 'none',
 						'&:hover': { backgroundColor: '#fdd835' },
 					}}
-					onClick={handleSubmit}
 				>
-					Создать
+					{isEditMode ? 'Обновить' : 'Создать'}
 				</Button>
 			</DialogActions>
 		</Dialog>

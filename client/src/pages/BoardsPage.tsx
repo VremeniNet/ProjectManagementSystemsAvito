@@ -1,26 +1,72 @@
-import { useState } from 'react'
-import { mockBoards } from '../mocks/boards'
-import { Board } from '../types/board'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Board } from '../types/board'
+import { getBoards } from '../api/boards'
 
 const BoardsPage = () => {
-	const [boards] = useState<Board[]>(mockBoards)
+	const [boards, setBoards] = useState<Board[]>([])
+	const [loading, setLoading] = useState(true)
 	const navigate = useNavigate()
+
+	useEffect(() => {
+		const fetchBoards = async () => {
+			try {
+				const data = await getBoards()
+				if (Array.isArray(data)) {
+					setBoards(data)
+				} else {
+					console.error('Ожидался массив досок:', data)
+				}
+			} catch (error) {
+				console.error('Ошибка при загрузке досок:', error)
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		fetchBoards()
+	}, [])
+
+	if (loading) {
+		return (
+			<div
+				style={{
+					backgroundColor: '#0A0A1E',
+					height: 'calc(100vh - 12vh - 70px)',
+					color: '#fff',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+				}}
+			>
+				Loading boards...
+			</div>
+		)
+	}
 
 	return (
 		<div
 			style={{
+				borderTop: '1px solid #22202E',
 				borderBottom: '1px solid #22202E',
 				backgroundColor: '#0A0A1E',
-				height: 'calc(100vh - 12vh - 80px)',
+				height: 'calc(100vh - 12vh - 70px)',
+				display: 'flex',
+				flexDirection: 'column',
 			}}
 		>
+			<h2 style={{ margin: 0, padding: '10px 30px', color: '#ffeb3b' }}>
+				Проекты
+			</h2>
+
 			<div
 				style={{
+					flex: 1,
+					overflowY: 'auto',
+					padding: '0 30px 30px',
 					display: 'flex',
 					flexDirection: 'column',
 					gap: '16px',
-					padding: '0 30px 30px',
 				}}
 			>
 				{boards.map(board => (

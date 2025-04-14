@@ -5,12 +5,12 @@ export const mockBoards: Board[] = [
 		id: 1,
 		name: 'Frontend Board',
 		description: 'Задачи по фронтенду',
-		taskCount: 5,
+		taskCount: 3,
 	},
 	{
 		id: 2,
 		name: 'Backend Board',
 		description: 'Задачи по бэкенду',
-		taskCount: 3,
+		taskCount: 0,
 	},
 ]

@@ -1,8 +1,12 @@
 export interface TaskFormValues {
 	title: string
 	description: string
-	status: 'Backlog' | 'InProgress' | 'Done'
 	priority: 'Low' | 'Medium' | 'High'
-	assignee: string
-	board: string
+	status: 'ToDo' | 'InProgress' | 'Done'
+	boardId: number
+	assigneeId: number
+}
+
+export interface TaskFormValuesWithID extends TaskFormValues {
+	id: number
 }

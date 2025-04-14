@@ -1,18 +1,24 @@
+// src/App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState } from 'react'
-import BoardsPage from './pages/BoardsPage.tsx'
-import BoardPage from './pages/BoardPage.tsx'
-import IssuesPage from './pages/IssuesPage.tsx'
-import Header from './components/Header.tsx'
+import BoardsPage from './pages/BoardsPage'
+import BoardPage from './pages/BoardPage'
+import IssuesPage from './pages/IssuesPage'
+import Header from './components/Header'
 import TaskModal from './components/TaskModal'
 import { TaskFormValues } from './types/taskForm'
+import { mockBoards } from './mocks/boards'
+import { mockUsers } from './mocks/users'
+
+const uniqueBoards = mockBoards
+const uniqueUsers = mockUsers
 
 function App() {
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
 	const handleCreate = (data: TaskFormValues) => {
 		console.log('Создана задача:', data)
-		// здесь можно сохранить в стейт или отправить на сервер
+		// Здесь можно сохранить в стейт или отправить на сервер
 	}
 
 	return (
@@ -24,7 +30,7 @@ function App() {
 					left: 0,
 					width: '20vw',
 					height: '150px',
-					backgroundImage: 'url(../public/pattern.png)',
+					backgroundImage: 'url(/pattern.png)',
 					backgroundSize: '320px 320px',
 					pointerEvents: 'none',
 					backgroundRepeat: 'repeat',
@@ -33,17 +39,22 @@ function App() {
 			/>
 
 			<Header onOpenCreateModal={() => setIsModalOpen(true)} />
+
 			<Routes>
 				<Route path='/' element={<Navigate to='/issues' replace />} />
 				<Route path='/boards' element={<BoardsPage />} />
 				<Route path='/board/:id' element={<BoardPage />} />
 				<Route path='/issues' element={<IssuesPage />} />
 			</Routes>
+
 			<TaskModal
 				open={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
 				onSubmit={handleCreate}
+				users={uniqueUsers}
+				boards={uniqueBoards}
 			/>
+
 			<div
 				style={{
 					position: 'absolute',
@@ -51,7 +62,7 @@ function App() {
 					right: 0,
 					width: '20vw',
 					height: '150px',
-					backgroundImage: 'url(../public/pattern.png)',
+					backgroundImage: 'url(/pattern.png)',
 					backgroundSize: '320px 320px',
 					pointerEvents: 'none',
 					backgroundRepeat: 'repeat',
