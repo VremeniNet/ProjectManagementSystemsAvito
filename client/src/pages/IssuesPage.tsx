@@ -141,6 +141,8 @@ const IssuesPage = () => {
 				board={filters.board}
 				assignee={filters.assignee}
 				onChange={handleChange}
+				boards={boards}
+				users={users}
 			/>
 
 			<div

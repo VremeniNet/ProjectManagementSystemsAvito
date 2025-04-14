@@ -1,6 +1,8 @@
 import { Select, MenuItem, TextField } from '@mui/material'
 import { SelectChangeEvent } from '@mui/material/Select'
 import { ChangeEvent } from 'react'
+import { Board } from '../types/board'
+import { User } from '../types/user'
 
 interface TaskFiltersProps {
 	search: string
@@ -8,6 +10,8 @@ interface TaskFiltersProps {
 	board: string
 	assignee: string
 	onChange: (field: string, value: string) => void
+	boards: Board[]
+	users: User[]
 }
 
 const TaskFilters = ({
@@ -16,6 +20,8 @@ const TaskFilters = ({
 	board,
 	assignee,
 	onChange,
+	boards,
+	users,
 }: TaskFiltersProps) => {
 	const handleTextChange =
 		(field: string) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +87,7 @@ const TaskFilters = ({
 				renderValue={value => (value ? value : 'Статус')}
 			>
 				<MenuItem value=''>Статус</MenuItem>
-				<MenuItem value='ToDo'>ToDo</MenuItem>
+				<MenuItem value='Backlog'>Backlog</MenuItem>
 				<MenuItem value='InProgress'>In Progress</MenuItem>
 				<MenuItem value='Done'>Done</MenuItem>
 			</Select>
@@ -95,8 +101,11 @@ const TaskFilters = ({
 				renderValue={value => (value ? value : 'Проект')}
 			>
 				<MenuItem value=''>Проект</MenuItem>
-				<MenuItem value='Frontend Board'>Frontend Board</MenuItem>
-				<MenuItem value='UI Board'>UI Board</MenuItem>
+				{boards?.map(b => (
+					<MenuItem key={b.id} value={b.name}>
+						{b.name}
+					</MenuItem>
+				))}
 			</Select>
 
 			<Select
@@ -108,9 +117,11 @@ const TaskFilters = ({
 				renderValue={value => (value ? value : 'Исполнитель')}
 			>
 				<MenuItem value=''>Исполнитель</MenuItem>
-				<MenuItem value='Иван Петров'>Иван Петров</MenuItem>
-				<MenuItem value='Ольга Смирнова'>Ольга Смирнова</MenuItem>
-				<MenuItem value='Антон Кузнецов'>Антон Кузнецов</MenuItem>
+				{users?.map(u => (
+					<MenuItem key={u.id} value={u.fullName}>
+						{u.fullName}
+					</MenuItem>
+				))}
 			</Select>
 		</div>
 	)

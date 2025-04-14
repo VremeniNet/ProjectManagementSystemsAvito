@@ -46,7 +46,6 @@ const BoardPage = () => {
 				setLoading(false)
 			}
 		}
-
 		fetchData()
 	}, [])
 
@@ -80,12 +79,9 @@ const BoardPage = () => {
 	const handleUpdate = async (updatedTask: TaskFormValues) => {
 		try {
 			if (selectedTask?.id) {
-				const updated = await updateTask(selectedTask.id, updatedTask)
-				setTasks(prev =>
-					prev.map(task =>
-						task.id === selectedTask.id ? { ...task, ...updated } : task
-					)
-				)
+				await updateTask(selectedTask.id, updatedTask)
+				const tasksData = await getTasks()
+				setTasks(tasksData)
 			}
 		} catch (error) {
 			console.error('Ошибка при обновлении задачи:', error)
