@@ -1,0 +1,49 @@
+import { Task } from '../types/task'
+
+export const mockTasks: Task[] = [
+	{
+		id: 1,
+		title: 'Добавить фильтры на страницу задач',
+		description: 'Нужно реализовать фильтрацию по статусу, доске и исполнителю',
+		status: 'Backlog',
+		priority: 'High',
+		assignee: {
+			id: 1,
+			fullName: 'Иван Петров',
+			email: 'ivan.petrov@example.com',
+			avatarUrl: '',
+		},
+		boardId: 1,
+		boardName: 'Frontend Board',
+	},
+	{
+		id: 2,
+		title: 'Реализовать drag-and-drop задач',
+		description: 'Перемещение задач между колонками на доске',
+		status: 'InProgress',
+		priority: 'Medium',
+		assignee: {
+			id: 2,
+			fullName: 'Ольга Смирнова',
+			email: 'olga.smirnova@example.com',
+			avatarUrl: '',
+		},
+		boardId: 1,
+		boardName: 'Frontend Board',
+	},
+	{
+		id: 3,
+		title: 'Обновить стили кнопки создания',
+		description: 'Сделать кнопку ярче, добавить закругление',
+		status: 'Done',
+		priority: 'Low',
+		assignee: {
+			id: 3,
+			fullName: 'Антон Кузнецов',
+			email: 'anton.k@example.com',
+			avatarUrl: '',
+		},
+		boardId: 2,
+		boardName: 'UI Board',
+	},
+]
