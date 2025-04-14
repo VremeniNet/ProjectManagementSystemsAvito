@@ -1,29 +1,66 @@
 import { useParams } from 'react-router-dom'
-import { useState } from 'react'
-import { Task } from '../types/task'
-import { boardTasks } from '../mocks/boardTasks'
+import { useEffect, useState, useMemo } from 'react'
 import TaskModal from '../components/TaskModal'
-import { TaskFormValues } from '../types/taskForm'
-import { mockUsers } from '../mocks/users'
-import { mockBoards } from '../mocks/boards'
+import { Task } from '../types/task'
+import { TaskFormValues, TaskFormValuesWithID } from '../types/taskForm'
+import { User } from '../types/user'
+import { Board } from '../types/board'
+import { getTasks, updateTask } from '../api/tasks'
+import { getUsers } from '../api/users'
+import { getBoards } from '../api/boards'
 
 const statusColumns = [
-	{ label: 'ToDo', title: 'To Do' },
+	{ label: 'Backlog', title: 'To Do' },
 	{ label: 'InProgress', title: 'In Progress' },
 	{ label: 'Done', title: 'Done' },
 ]
 
 const BoardPage = () => {
 	const { id } = useParams()
+	const boardId = Number(id)
 
-	const tasks = boardTasks.filter(t => t.boardId === Number(id))
-	const boardName = tasks[0]?.boardName || 'Проект'
+	const [tasks, setTasks] = useState<Task[]>([])
+	const [users, setUsers] = useState<User[]>([])
+	const [boards, setBoards] = useState<Board[]>([])
+	const [loading, setLoading] = useState(true)
 
-	const [selectedTask, setSelectedTask] = useState<TaskFormValues | null>(null)
+	const [selectedTask, setSelectedTask] = useState<TaskFormValuesWithID | null>(
+		null
+	)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const [tasksData, usersData, boardsData] = await Promise.all([
+					getTasks(),
+					getUsers(),
+					getBoards(),
+				])
+				setTasks(tasksData)
+				setUsers(usersData)
+				setBoards(boardsData)
+			} catch (error) {
+				console.error('Ошибка при загрузке данных:', error)
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		fetchData()
+	}, [])
+
+	const boardTasks = useMemo(() => {
+		return tasks.filter(task => task.boardId === boardId)
+	}, [tasks, boardId])
+
+	const boardName = useMemo(() => {
+		return boards.find(b => b.id === boardId)?.name || 'Проект'
+	}, [boards, boardId])
+
 	const handleOpen = (task: Task) => {
-		const taskForm: TaskFormValues = {
+		const taskForm: TaskFormValuesWithID = {
+			id: task.id,
 			title: task.title,
 			description: task.description,
 			status: task.status,
@@ -40,10 +77,37 @@ const BoardPage = () => {
 		setIsModalOpen(false)
 	}
 
-	const handleUpdate = (updatedTask: TaskFormValues) => {
-		console.log('Обновлена задача:', updatedTask)
-
+	const handleUpdate = async (updatedTask: TaskFormValues) => {
+		try {
+			if (selectedTask?.id) {
+				const updated = await updateTask(selectedTask.id, updatedTask)
+				setTasks(prev =>
+					prev.map(task =>
+						task.id === selectedTask.id ? { ...task, ...updated } : task
+					)
+				)
+			}
+		} catch (error) {
+			console.error('Ошибка при обновлении задачи:', error)
+		}
 		handleClose()
+	}
+
+	if (loading) {
+		return (
+			<div
+				style={{
+					backgroundColor: '#0A0A1E',
+					height: 'calc(100vh - 12vh - 70px)',
+					color: '#fff',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+				}}
+			>
+				Loading board...
+			</div>
+		)
 	}
 
 	return (
@@ -76,7 +140,7 @@ const BoardPage = () => {
 						}}
 					>
 						<h3 style={{ color: '#ffeb3b', margin: 0 }}>{col.title}</h3>
-						{tasks
+						{boardTasks
 							.filter(task => task.status === col.label)
 							.map(task => (
 								<div
@@ -118,8 +182,8 @@ const BoardPage = () => {
 					initialValues={selectedTask ?? undefined}
 					isFromBoard={true}
 					showGoToBoard={false}
-					users={mockUsers}
-					boards={mockBoards}
+					users={users}
+					boards={boards}
 				/>
 			)}
 		</div>

@@ -1,5 +1,3 @@
-// src/pages/IssuesPage.tsx
-
 import { useMemo, useState, useEffect } from 'react'
 import TaskFilters from '../components/TaskFilters'
 import CreateTaskButton from '../components/CreateTaskButton'
@@ -15,13 +13,11 @@ import { getUsers } from '../api/users'
 import { getBoards } from '../api/boards'
 
 const IssuesPage = () => {
-	// Состояния для данных с сервера
 	const [users, setUsers] = useState<User[]>([])
 	const [boards, setBoards] = useState<Board[]>([])
 	const [tasks, setTasks] = useState<Task[]>([])
 	const [loading, setLoading] = useState(true)
 
-	// Состояние для фильтров
 	const [filters, setFilters] = useState({
 		search: '',
 		status: '',
@@ -29,13 +25,11 @@ const IssuesPage = () => {
 		assignee: '',
 	})
 
-	// Состояние для выбранной задачи (с ID) и открытия модалки
 	const [selectedTask, setSelectedTask] = useState<TaskFormValuesWithID | null>(
 		null
 	)
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
-	// При первом рендере загружаем данные с сервера
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -55,7 +49,6 @@ const IssuesPage = () => {
 		fetchData()
 	}, [])
 
-	// Фильтрация задач по поиску, статусу, доске и исполнителю
 	const filteredTasks = useMemo(() => {
 		return tasks.filter(task => {
 			const matchesSearch = task.title
@@ -75,26 +68,21 @@ const IssuesPage = () => {
 		})
 	}, [filters, tasks])
 
-	// Обработчик изменения фильтров
 	const handleChange = (field: string, value: string) => {
 		setFilters(prev => ({ ...prev, [field]: value }))
 	}
 
-	// Создание новой задачи (через API)
 	const handleCreate = async (data: TaskFormValues) => {
 		try {
 			const newTask = await createTask(data)
 			console.log('Создана задача:', newTask)
-			// Добавляем новую задачу в локальный стейт
 			setTasks(prev => [...prev, newTask])
 		} catch (error) {
 			console.error('Ошибка при создании задачи:', error)
 		}
 	}
 
-	// Открытие модалки для редактирования задачи
 	const handleOpen = (task: Task) => {
-		// Преобразуем Task → TaskFormValuesWithID
 		const taskForm: TaskFormValuesWithID = {
 			id: task.id,
 			title: task.title,
@@ -113,13 +101,11 @@ const IssuesPage = () => {
 		setIsModalOpen(false)
 	}
 
-	// Обновление задачи (через API)
 	const handleUpdate = async (updatedTask: TaskFormValues) => {
 		try {
 			if (selectedTask?.id) {
 				const updated = await updateTask(selectedTask.id, updatedTask)
 				console.log('Обновлена задача:', updated)
-				// Обновляем задачу в локальном списке
 				setTasks(prev =>
 					prev.map(task =>
 						task.id === selectedTask.id ? { ...task, ...updated } : task
@@ -159,7 +145,6 @@ const IssuesPage = () => {
 				flexDirection: 'column',
 			}}
 		>
-			{/* Фильтры */}
 			<TaskFilters
 				search={filters.search}
 				status={filters.status}
@@ -168,7 +153,6 @@ const IssuesPage = () => {
 				onChange={handleChange}
 			/>
 
-			{/* Список задач */}
 			<div
 				style={{
 					flex: 1,
@@ -207,7 +191,6 @@ const IssuesPage = () => {
 				))}
 			</div>
 
-			{/* Кнопка создания задачи */}
 			<div
 				style={{
 					display: 'flex',
