@@ -5,7 +5,7 @@ export const mockTasks: Task[] = [
 		id: 1,
 		title: 'Добавить фильтры на страницу задач',
 		description: 'Нужно реализовать фильтрацию по статусу, доске и исполнителю',
-		status: 'ToDo',
+		status: 'Backlog',
 		priority: 'High',
 		assignee: {
 			id: 1,

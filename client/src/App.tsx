@@ -18,7 +18,6 @@ function App() {
 
 	const handleCreate = (data: TaskFormValues) => {
 		console.log('Создана задача:', data)
-		// Здесь можно сохранить в стейт или отправить на сервер
 	}
 
 	return (
@@ -38,7 +37,7 @@ function App() {
 				}}
 			/>
 
-			<Header onOpenCreateModal={() => setIsModalOpen(true)} />
+			<Header />
 
 			<Routes>
 				<Route path='/' element={<Navigate to='/issues' replace />} />

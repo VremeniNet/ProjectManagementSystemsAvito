@@ -8,27 +8,24 @@ import { getUsers } from '../api/users'
 import { getBoards } from '../api/boards'
 import { TaskFormValues } from '../types/taskForm'
 import { createTask, getTasks } from '../api/tasks'
-import { Task } from '../types/task'
 
 const Header = () => {
 	const location = useLocation()
+
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [loading, setLoading] = useState(true)
 	const [users, setUsers] = useState<User[]>([])
 	const [boards, setBoards] = useState<Board[]>([])
-	const [tasks, setTasks] = useState<Task[]>([])
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const [usersData, boardsData, tasksData] = await Promise.all([
+				const [usersData, boardsData] = await Promise.all([
 					getUsers(),
 					getBoards(),
-					getTasks(),
 				])
 				setUsers(usersData)
 				setBoards(boardsData)
-				setTasks(tasksData)
 			} catch (err) {
 				console.error('Ошибка при загрузке в хедере:', err)
 			} finally {
@@ -44,8 +41,7 @@ const Header = () => {
 	const handleCreate = async (data: TaskFormValues) => {
 		try {
 			await createTask(data)
-			const newTasks = await getTasks()
-			setTasks(newTasks)
+			await getTasks()
 		} catch (err) {
 			console.error('Ошибка при создании задачи в хедере:', err)
 		}

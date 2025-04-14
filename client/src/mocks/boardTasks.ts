@@ -5,7 +5,7 @@ export const boardTasks: Task[] = [
 		id: 1,
 		title: 'Сделать кнопку',
 		description: 'Добавить кнопку "Создать задачу"',
-		status: 'ToDo',
+		status: 'Backlog',
 		priority: 'High',
 		assignee: { id: 1, fullName: 'Иван Иванов' },
 		boardId: 1,
