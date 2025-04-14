@@ -1,4 +1,4 @@
-export type TaskStatus = 'ToDo' | 'InProgress' | 'Done'
+export type TaskStatus = 'Backlog' | 'InProgress' | 'Done'
 export type TaskPriority = 'Low' | 'Medium' | 'High'
 
 export interface Assignee {
@@ -13,7 +13,7 @@ export interface Task {
 	title: string
 	description: string
 	priority: 'Low' | 'Medium' | 'High'
-	status: 'ToDo' | 'InProgress' | 'Done'
+	status: 'Backlog' | 'InProgress' | 'Done'
 	boardId: number
 	boardName: string
 	assignee: {

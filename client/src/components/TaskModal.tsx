@@ -10,15 +10,15 @@ import {
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { TaskFormValues } from '../types/taskForm'
+import { TaskFormValuesWithID } from '../types/taskForm'
 import { User } from '../types/user'
 import { Board } from '../types/board'
 
 interface TaskModalProps {
 	open: boolean
 	onClose: () => void
-	onSubmit: (data: TaskFormValues) => void
-	initialValues?: TaskFormValues
+	onSubmit: (data: TaskFormValuesWithID) => void
+	initialValues?: TaskFormValuesWithID
 	isFromBoard?: boolean
 	showGoToBoard?: boolean
 	users: User[]
@@ -56,10 +56,11 @@ const TaskModal = ({
 	const navigate = useNavigate()
 	const isEditMode = Boolean(initialValues)
 
-	const [form, setForm] = useState<TaskFormValues>({
+	const [form, setForm] = useState<TaskFormValuesWithID>({
+		id: 0,
 		title: '',
 		description: '',
-		status: 'ToDo',
+		status: 'Backlog',
 		priority: 'Medium',
 		assigneeId: 0,
 		boardId: 0,
@@ -72,14 +73,13 @@ const TaskModal = ({
 	}, [initialValues])
 
 	const handleChange =
-		(field: keyof TaskFormValues) =>
+		(field: keyof TaskFormValuesWithID) =>
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			setForm(prev => ({ ...prev, [field]: e.target.value }))
 		}
 
 	const handleSelectChange =
-		<T extends keyof TaskFormValues>(field: T) =>
-		(e: SelectChangeEvent<string | number>) => {
+		(field: keyof TaskFormValuesWithID) => (e: SelectChangeEvent) => {
 			const value = e.target.value
 			setForm(prev => ({
 				...prev,
@@ -88,6 +88,10 @@ const TaskModal = ({
 		}
 
 	const handleSubmit = () => {
+		if (!form.title.trim()) {
+			alert('Введите название задачи')
+			return
+		}
 		onSubmit(form)
 		onClose()
 	}
@@ -110,7 +114,9 @@ const TaskModal = ({
 			}}
 			slotProps={{
 				backdrop: {
-					sx: { backgroundColor: 'rgba(0, 0, 0, 0.6)' },
+					sx: {
+						backgroundColor: 'rgba(0, 0, 0, 0.6)',
+					},
 				},
 			}}
 		>
@@ -124,7 +130,6 @@ const TaskModal = ({
 			>
 				{isEditMode ? 'Редактировать задачу' : 'Создать задачу'}
 			</DialogTitle>
-
 			<DialogContent
 				sx={{
 					display: 'flex',
@@ -154,11 +159,7 @@ const TaskModal = ({
 					label='Проект'
 					select
 					value={form.boardId}
-					onChange={e =>
-						handleSelectChange('boardId')(
-							e as SelectChangeEvent<string | number>
-						)
-					}
+					onChange={handleSelectChange('boardId')}
 					sx={{
 						...yellowFieldStyle,
 						'& .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline':
@@ -175,6 +176,7 @@ const TaskModal = ({
 					}}
 					disabled={isFromBoard}
 				>
+					<MenuItem value={0}>Без проекта</MenuItem>
 					{boards.map(board => (
 						<MenuItem key={board.id} value={board.id}>
 							{board.name}
@@ -185,11 +187,7 @@ const TaskModal = ({
 					select
 					label='Приоритет'
 					value={form.priority}
-					onChange={e =>
-						handleSelectChange('priority')(
-							e as SelectChangeEvent<string | number>
-						)
-					}
+					onChange={handleSelectChange('priority')}
 					sx={yellowFieldStyle}
 				>
 					<MenuItem value='Low'>Low</MenuItem>
@@ -200,14 +198,10 @@ const TaskModal = ({
 					select
 					label='Статус'
 					value={form.status}
-					onChange={e =>
-						handleSelectChange('status')(
-							e as SelectChangeEvent<string | number>
-						)
-					}
+					onChange={handleSelectChange('status')}
 					sx={yellowFieldStyle}
 				>
-					<MenuItem value='ToDo'>To Do</MenuItem>
+					<MenuItem value='Backlog'>Backlog</MenuItem>
 					<MenuItem value='InProgress'>In Progress</MenuItem>
 					<MenuItem value='Done'>Done</MenuItem>
 				</TextField>
@@ -215,13 +209,10 @@ const TaskModal = ({
 					label='Исполнитель'
 					select
 					value={form.assigneeId}
-					onChange={e =>
-						handleSelectChange('assigneeId')(
-							e as SelectChangeEvent<string | number>
-						)
-					}
+					onChange={handleSelectChange('assigneeId')}
 					sx={yellowFieldStyle}
 				>
+					<MenuItem value={0}>Без исполнителя</MenuItem>
 					{users.map(user => (
 						<MenuItem key={user.id} value={user.id}>
 							{user.fullName}
@@ -229,7 +220,6 @@ const TaskModal = ({
 					))}
 				</TextField>
 			</DialogContent>
-
 			<DialogActions
 				sx={{
 					justifyContent: showGoToBoard ? 'space-between' : 'flex-end',

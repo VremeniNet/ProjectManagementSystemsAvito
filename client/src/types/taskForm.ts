@@ -2,7 +2,7 @@ export interface TaskFormValues {
 	title: string
 	description: string
 	priority: 'Low' | 'Medium' | 'High'
-	status: 'ToDo' | 'InProgress' | 'Done'
+	status: 'Backlog' | 'InProgress' | 'Done'
 	boardId: number
 	assigneeId: number
 }
