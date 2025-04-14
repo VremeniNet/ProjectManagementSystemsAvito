@@ -2,12 +2,10 @@ import { useMemo, useState, useEffect } from 'react'
 import TaskFilters from '../components/TaskFilters'
 import CreateTaskButton from '../components/CreateTaskButton'
 import TaskModal from '../components/TaskModal'
-
 import { TaskFormValues, TaskFormValuesWithID } from '../types/taskForm'
 import { Task } from '../types/task'
 import { User } from '../types/user'
 import { Board } from '../types/board'
-
 import { getTasks, createTask, updateTask } from '../api/tasks'
 import { getUsers } from '../api/users'
 import { getBoards } from '../api/boards'
@@ -17,14 +15,12 @@ const IssuesPage = () => {
 	const [boards, setBoards] = useState<Board[]>([])
 	const [tasks, setTasks] = useState<Task[]>([])
 	const [loading, setLoading] = useState(true)
-
 	const [filters, setFilters] = useState({
 		search: '',
 		status: '',
 		board: '',
 		assignee: '',
 	})
-
 	const [selectedTask, setSelectedTask] = useState<TaskFormValuesWithID | null>(
 		null
 	)
@@ -36,7 +32,6 @@ const IssuesPage = () => {
 				const tasksData = await getTasks()
 				const usersData = await getUsers()
 				const boardsData = await getBoards()
-
 				setTasks(tasksData)
 				setUsers(usersData)
 				setBoards(boardsData)
@@ -63,7 +58,6 @@ const IssuesPage = () => {
 			const matchesAssignee = task.assignee.fullName
 				.toLowerCase()
 				.includes(filters.assignee.toLowerCase())
-
 			return matchesSearch && matchesStatus && matchesBoard && matchesAssignee
 		})
 	}, [filters, tasks])
@@ -74,9 +68,9 @@ const IssuesPage = () => {
 
 	const handleCreate = async (data: TaskFormValues) => {
 		try {
-			const newTask = await createTask(data)
-			console.log('Создана задача:', newTask)
-			setTasks(prev => [...prev, newTask])
+			await createTask(data)
+			const tasksData = await getTasks()
+			setTasks(tasksData)
 		} catch (error) {
 			console.error('Ошибка при создании задачи:', error)
 		}
@@ -104,13 +98,9 @@ const IssuesPage = () => {
 	const handleUpdate = async (updatedTask: TaskFormValues) => {
 		try {
 			if (selectedTask?.id) {
-				const updated = await updateTask(selectedTask.id, updatedTask)
-				console.log('Обновлена задача:', updated)
-				setTasks(prev =>
-					prev.map(task =>
-						task.id === selectedTask.id ? { ...task, ...updated } : task
-					)
-				)
+				await updateTask(selectedTask.id, updatedTask)
+				const tasksData = await getTasks()
+				setTasks(tasksData)
 			}
 		} catch (error) {
 			console.error('Ошибка при обновлении задачи:', error)
