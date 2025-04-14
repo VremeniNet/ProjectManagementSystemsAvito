@@ -1,4 +1,4 @@
-```markdown
+
 # Project Management Systems Avito
 
 Пример мини-системы управления проектами: фронтенд (Vite + React + TS) и бэкенд (Go + Gin). Данный README описывает, как запустить проект локально и в Docker.
@@ -37,7 +37,6 @@
 2. Перейдите в папку `server`:
    ```bash
    cd server
-   ```
 3. Установите зависимости:
    ```bash
    go mod download
